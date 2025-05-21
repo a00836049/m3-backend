@@ -1,15 +1,17 @@
 const express = require('express');
 const { getConnection, sql } = require('../db');
+const bcrypt = require('bcrypt');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
   const { nombre, apellido, password, pelicula_favorita } = req.body;
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
     const pool = await getConnection();
     await pool.request()
       .input('nombre', sql.VarChar(50), nombre)
       .input('apellido', sql.VarChar(50), apellido)
-      .input('password', sql.VarChar(255), password)
+      .input('password', sql.VarChar(255), hashedPassword)
       .input('pelicula_favorita', sql.VarChar(100), pelicula_favorita)
       .query(
         `INSERT INTO db_a25c05_wusap.dbo.marcelocardenas 

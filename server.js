@@ -4,6 +4,8 @@ const usersRoutes = require('./routes/getusers');
 const postUsersRoutes = require('./routes/postusers');
 const updateUserRoutes = require('./routes/updateuser');
 const deleteUserRoutes = require('./routes/deleteuser');
+const loginRoutes = require('./routes/login');
+
 
 
 
@@ -16,6 +18,7 @@ app.use('/users', usersRoutes);
 app.use('/postusers', postUsersRoutes);
 app.use('/updateuser', updateUserRoutes);
 app.use('/deleteuser', deleteUserRoutes);
+app.use('/login', loginRoutes);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en http://localhost:${PORT}`);
