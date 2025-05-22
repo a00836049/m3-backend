@@ -18,10 +18,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-
-      - name: Inject .env from GitHub secrets
-        working-directory: ./backend
+          
+      - name: Debug directory structure
         run: |
+          pwd
+          ls -la
+          
+      - name: Inject .env from GitHub secrets
+        run: |
+          cd backend
           echo "DB_SERVER=${{ secrets.DB_SERVER }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
@@ -32,16 +37,18 @@ jobs:
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
       - name: Install dependencies
-        working-directory: ./backend
-        run: npm ci
+        run: |
+          cd backend
+          npm ci
 
       - name: Lint
-        working-directory: ./backend
-        run: npm run lint || echo "Lint failed"
+        run: |
+          cd backend
+          npm run lint || echo "Lint failed"
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_BACKEND_PUBLISH_PROFILE }}
-          package: ./backend
+          package: backend
