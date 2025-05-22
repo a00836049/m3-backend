@@ -10,9 +10,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: .
 
     steps:
       - uses: actions/checkout@v3
@@ -22,6 +19,7 @@ jobs:
         with:
           node-version: 18
           
+      # Setup for debugging
       - name: Debug directory structure
         run: |
           pwd
@@ -44,11 +42,13 @@ jobs:
       - name: Lint
         run: npm run lint || echo "Lint failed"
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+      # Alternative deployment using Azure CLI
+      - name: Azure Login
+        uses: azure/login@v1
         with:
-          app-name: ${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_BACKEND_PUBLISH_PROFILE }}
-          package: .
-          respect-pom-xml: false
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - name: Deploy to Azure Web App
+        run: |
+          zip -r deployment.zip ./*
+          az webapp deployment source config-zip --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_WEBAPP_BACKEND_NAME }} --src deployment.zip
