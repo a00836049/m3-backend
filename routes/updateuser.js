@@ -1,9 +1,32 @@
 const express = require('express');
 const { getConnection, sql } = require('../db');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 
-// PUT /updateuser/:id
-router.put('/:id', async (req, res) => {
+// Middleware para verificar el token JWT
+const verificarToken = (req, res, next) => {
+  // Obtener el token del header Authorization
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  
+  if (!token) {
+    return res.status(401).json({ message: 'Acceso denegado. No se proporcionó un token.' });
+  }
+  
+  try {
+    // Usar la misma clave secreta que se usa en la ruta de login
+    const secretKey = 'clave_secreta_jwt_marcelocardenas';
+    const decoded = jwt.verify(token, secretKey);
+    req.user = decoded; // Guardar los datos del usuario en la solicitud
+    next(); // Continuar con la siguiente función
+  } catch (error) {
+    console.error('Error de verificación de token:', error);
+    return res.status(403).json({ message: 'Token inválido o expirado.' });
+  }
+};
+
+// PUT /updateuser/:id - Protegido con verificación de token
+router.put('/:id', verificarToken, async (req, res) => {
   const userId = req.params.id;
   const { nombre, apellido, pelicula_favorita } = req.body;
   

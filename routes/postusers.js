@@ -2,8 +2,32 @@ const express = require('express');
 const { getConnection, sql } = require('../db');
 const bcrypt = require('bcrypt');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 
-router.post('/', async (req, res) => {
+// Middleware para verificar el token JWT
+const verificarToken = (req, res, next) => {
+  // Obtener el token del header Authorization
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  
+  if (!token) {
+    return res.status(401).json({ message: 'Acceso denegado. No se proporcionó un token.' });
+  }
+  
+  try {
+    // Usar la misma clave secreta que se usa en la ruta de login
+    const secretKey = 'clave_secreta_jwt_marcelocardenas';
+    const decoded = jwt.verify(token, secretKey);
+    req.user = decoded; // Guardar los datos del usuario en la solicitud
+    next(); // Continuar con la siguiente función
+  } catch (error) {
+    console.error('Error de verificación de token:', error);
+    return res.status(403).json({ message: 'Token inválido o expirado.' });
+  }
+};
+
+// POST /postusers - Protegido con verificación de token
+router.post('/', verificarToken, async (req, res) => {
   const { nombre, apellido, password, pelicula_favorita } = req.body;
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -18,10 +42,11 @@ router.post('/', async (req, res) => {
         (nombre, apellido, password, pelicula_favorita) 
         VALUES (@nombre, @apellido, @password, @pelicula_favorita)`
       );
-    res.status(201).send('Registro insertado correctamente');
+    // Cambiar a formato JSON para la respuesta
+    res.status(201).json({ message: 'Usuario registrado correctamente' });
   } catch (err) {
     console.error('Error al insertar en la base de datos:', err);
-    res.status(500).send('Error en el servidor');
+    res.status(500).json({ message: 'Error en el servidor', error: err.message });
   }
 });
 
