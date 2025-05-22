@@ -10,9 +10,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
 
     steps:
       - uses: actions/checkout@v3
@@ -23,6 +20,7 @@ jobs:
           node-version: 18
 
       - name: Inject .env from GitHub secrets
+        working-directory: ./backend
         run: |
           echo "DB_SERVER=${{ secrets.DB_SERVER }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
@@ -34,9 +32,11 @@ jobs:
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
       - name: Install dependencies
+        working-directory: ./backend
         run: npm ci
 
       - name: Lint
+        working-directory: ./backend
         run: npm run lint || echo "Lint failed"
 
       - name: Deploy to Azure Web App
