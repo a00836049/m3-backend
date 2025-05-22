@@ -1,7 +1,11 @@
 const express = require('express');
 const { getConnection, sql } = require('../db');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken'); // Necesitarás instalar: npm install jsonwebtoken
 const router = express.Router();
+
+// Clave secreta para JWT (en producción debería estar en variables de entorno)
+const JWT_SECRET = 'clave_secreta_jwt_marcelocardenas';
 
 router.post('/', async (req, res) => {
   const { nombre, password } = req.body;
@@ -20,7 +24,22 @@ router.post('/', async (req, res) => {
     if (!validPassword) {
       return res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
     }
-    res.json({ message: 'Login exitoso', user });
+    
+    // Generar token JWT
+    const token = jwt.sign(
+      { userId: user.id_usuario, nombre: user.nombre },
+      JWT_SECRET,
+      { expiresIn: '24h' } // El token expira en 24 horas
+    );
+    
+    // No enviar la contraseña al cliente
+    const { password: _, ...userWithoutPassword } = user;
+    
+    res.json({ 
+      message: 'Login exitoso', 
+      user: userWithoutPassword,
+      token
+    });
   } catch (err) {
     console.error('Error en login:', err);
     res.status(500).send('Error en el servidor');
