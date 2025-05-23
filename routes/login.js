@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
     const result = await pool.request()
       .input('nombre', sql.VarChar(50), nombre)
       .query(
-        `SELECT * FROM db_a25c05_wusap.dbo.marcelocardenas WHERE nombre = @nombre`
+        'SELECT * FROM db_a25c05_wusap.dbo.marcelocardenas WHERE nombre = @nombre'
       );
     const user = result.recordset[0];
     if (!user) {
