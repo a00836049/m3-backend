@@ -44,9 +44,19 @@ jobs:
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "DB_ENCRYPT=${{ secrets.DB_ENCRYPT }}" >> .env
-          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "PORT=8080" >> .env
+          echo "WEBSITE_NODE_DEFAULT_VERSION=18" >> .env
           echo "ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "NODE_ENV=production" >> .env
+          echo "HOST=0.0.0.0" >> .env
+
+      - name: Create startup command file
+        run: |
+          echo "#!/bin/bash" > startup.sh
+          echo "cd /home/site/wwwroot" >> startup.sh
+          echo "npm start" >> startup.sh
+          chmod +x startup.sh
 
       - name: Install dependencies
         run: npm ci
