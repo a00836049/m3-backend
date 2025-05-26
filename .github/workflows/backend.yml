@@ -30,6 +30,13 @@ jobs:
           rm -rf dist
           rm -rf build
           
+      - name: Clean App Service (Linux)
+        run: |
+          curl -X POST "https://${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}.scm.azurewebsites.net/api/command" \
+          -u "${{ secrets.AZURE_WEBAPP_BACKEND_PUBLISH_PROFILE_SOLUSERPWD }}" \
+          -H "Content-Type: application/json" \
+          --data '{"command": "rm -rf /site/wwwroot/*"}'
+          
       - name: Inject .env from GitHub secrets
         run: |
           echo "DB_SERVER=${{ secrets.DB_SERVER }}" >> .env
