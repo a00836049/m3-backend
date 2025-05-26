@@ -24,6 +24,12 @@ jobs:
           pwd
           ls -la
           
+      - name: Clean before build
+        run: |
+          rm -rf node_modules
+          rm -rf dist
+          rm -rf build
+          
       - name: Inject .env from GitHub secrets
         run: |
           echo "DB_SERVER=${{ secrets.DB_SERVER }}" >> .env
