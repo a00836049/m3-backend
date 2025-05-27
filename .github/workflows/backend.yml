@@ -63,6 +63,7 @@ jobs:
 
       - name: Lint
         run: npm run lint || echo "Lint failed"
+        continue-on-error: true
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
