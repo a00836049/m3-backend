@@ -1,3 +1,4 @@
+/* global jest, describe, test, expect, beforeEach */
 const request = require('supertest');
 const express = require('express');
 const loginRouter = require('../routes/login');
@@ -92,7 +93,6 @@ describe('Login API', () => {
     expect(response.body.user).toHaveProperty('id_usuario', 1);
     expect(response.body.user).toHaveProperty('nombre', 'usuario1');
     expect(response.body.user).not.toHaveProperty('password');
-    
     expect(jwt.sign).toHaveBeenCalledWith(
       { userId: 1, nombre: 'usuario1' },
       'clave_secreta_jwt_marcelocardenas',

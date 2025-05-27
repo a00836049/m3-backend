@@ -23,6 +23,7 @@ function authMiddleware(req, res, next) {
     // Continuar con la siguiente función
     next();
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error al verificar token:', error);
     res.status(401).json({ message: 'Token inválido o expirado.' });
   }

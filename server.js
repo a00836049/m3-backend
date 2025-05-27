@@ -27,7 +27,9 @@ app.use('/postusers', authMiddleware, postUsersRoutes);
 app.use('/updateuser', authMiddleware, updateUserRoutes);
 app.use('/deleteuser', authMiddleware, deleteUserRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT, () => {   
+  // eslint-disable-next-line no-console
   console.log(`🚀 Servidor escuchando en http://localhost:${PORT}`);
+  // eslint-disable-next-line no-console
   console.log(`📚 Documentación Swagger disponible en http://localhost:${PORT}/api-docs`);
 });

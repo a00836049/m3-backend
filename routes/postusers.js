@@ -21,6 +21,7 @@ const verificarToken = (req, res, next) => {
     req.user = decoded; // Guardar los datos del usuario en la solicitud
     next(); // Continuar con la siguiente función
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error de verificación de token:', error);
     return res.status(403).json({ message: 'Token inválido o expirado.' });
   }
@@ -45,6 +46,7 @@ router.post('/', verificarToken, async (req, res) => {
     // Cambiar a formato JSON para la respuesta
     res.status(201).json({ message: 'Usuario registrado correctamente' });
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('Error al insertar en la base de datos:', err);
     res.status(500).json({ message: 'Error en el servidor', error: err.message });
   }

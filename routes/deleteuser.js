@@ -20,6 +20,7 @@ const verificarToken = (req, res, next) => {
     req.user = decoded; // Guardar los datos del usuario en la solicitud
     next(); // Continuar con la siguiente función
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error de verificación de token:', error);
     return res.status(403).json({ message: 'Token inválido o expirado.' });
   }
@@ -38,6 +39,7 @@ router.delete('/:id', verificarToken, async (req, res) => {
       );
     res.status(200).json({ message: 'Usuario eliminado correctamente' });
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('Error al eliminar el usuario:', err);
     res.status(500).json({ message: 'Error en el servidor' });
   }

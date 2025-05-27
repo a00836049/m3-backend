@@ -33,6 +33,7 @@ router.post('/', async (req, res) => {
     );
     
     // No enviar la contraseña al cliente
+    // eslint-disable-next-line no-unused-vars
     const { password: _, ...userWithoutPassword } = user;
     
     res.json({ 
@@ -41,6 +42,7 @@ router.post('/', async (req, res) => {
       token
     });
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('Error en login:', err);
     res.status(500).send('Error en el servidor');
   }

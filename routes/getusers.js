@@ -20,6 +20,7 @@ const verificarToken = (req, res, next) => {
     req.user = decoded; // Guardar los datos del usuario en la solicitud
     next(); // Continuar con la siguiente función
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error de verificación de token:', error);
     return res.status(403).json({ message: 'Token inválido o expirado.' });
   }
@@ -32,6 +33,7 @@ router.get('/', verificarToken, async (req, res) => {
     const result = await pool.request().query('SELECT * FROM db_a25c05_wusap.dbo.marcelocardenas');
     res.json(result.recordset);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('Error al consultar los usuarios:', err);
     res.status(500).json({ message: 'Error en el servidor', error: err.message });
   }
