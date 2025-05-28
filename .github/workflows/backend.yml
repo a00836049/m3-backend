@@ -10,9 +10,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
 
     steps:
       - uses: actions/checkout@v3
@@ -26,9 +23,22 @@ jobs:
         run: |
           pwd
           ls -la
+          echo "Checking for backend directory..."
+          if [ -d "backend" ]; then
+            echo "Backend directory found"
+            cd backend
+            pwd
+            ls -la
+          else
+            echo "No backend directory, assuming we're in backend already"
+            ls -la
+          fi
           
-      - name: Clean before build
+      - name: Navigate to backend and clean
         run: |
+          if [ -d "backend" ]; then
+            cd backend
+          fi
           rm -rf node_modules
           rm -rf dist
           rm -rf build
@@ -78,14 +88,26 @@ jobs:
           echo '</configuration>' >> web.config
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -d "backend" ]; then
+            cd backend
+          fi
+          npm ci
 
       - name: Run tests
-        run: npm run test
+        run: |
+          if [ -d "backend" ]; then
+            cd backend
+          fi
+          npm run test
         continue-on-error: true
 
       - name: Lint
-        run: npm run lint || echo "Lint failed"
+        run: |
+          if [ -d "backend" ]; then
+            cd backend
+          fi
+          npm run lint || echo "Lint failed"
         continue-on-error: true
 
       - name: Deploy to Azure Web App
@@ -93,5 +115,5 @@ jobs:
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_BACKEND_PUBLISH_PROFILE }}
-          package: ./backend
+          package: ${{ github.workspace }}/backend
           startup-command: 'npm start'
