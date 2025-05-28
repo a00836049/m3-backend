@@ -53,9 +53,11 @@ jobs:
           
       - name: Inject .env from GitHub secrets
         run: |
+          TARGET_DIR="."
           if [ -d "backend" ]; then
-            cd backend
+            TARGET_DIR="backend"
           fi
+          cd "$TARGET_DIR"
           echo "DB_SERVER=${{ secrets.DB_SERVER }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
@@ -70,9 +72,11 @@ jobs:
 
       - name: Create web.config for Azure
         run: |
+          TARGET_DIR="."
           if [ -d "backend" ]; then
-            cd backend
+            TARGET_DIR="backend"
           fi
+          cd "$TARGET_DIR"
           echo '<?xml version="1.0" encoding="utf-8"?>' > web.config
           echo '<configuration>' >> web.config
           echo '  <system.webServer>' >> web.config
@@ -95,30 +99,45 @@ jobs:
 
       - name: Install dependencies
         run: |
+          TARGET_DIR="."
           if [ -d "backend" ]; then
-            cd backend
+            TARGET_DIR="backend"
           fi
+          cd "$TARGET_DIR"
           npm ci
 
       - name: Run tests
         run: |
+          TARGET_DIR="."
           if [ -d "backend" ]; then
-            cd backend
+            TARGET_DIR="backend"
           fi
+          cd "$TARGET_DIR"
           npm run test
         continue-on-error: true
 
       - name: Lint
         run: |
+          TARGET_DIR="."
           if [ -d "backend" ]; then
-            cd backend
+            TARGET_DIR="backend"
           fi
+          cd "$TARGET_DIR"
           npm run lint || echo "Lint failed"
         continue-on-error: true
+
+      - name: Determine package path
+        id: package_path
+        run: |
+          if [ -d "backend" ]; then
+            echo "path=${{ github.workspace }}/backend" >> $GITHUB_OUTPUT
+          else
+            echo "path=${{ github.workspace }}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_BACKEND_PUBLISH_PROFILE }}
-          package: ${{ github.workspace }}/backend
+          package: ${{ steps.package_path.outputs.path }}
