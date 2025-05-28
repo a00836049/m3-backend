@@ -53,6 +53,9 @@ jobs:
           
       - name: Inject .env from GitHub secrets
         run: |
+          if [ -d "backend" ]; then
+            cd backend
+          fi
           echo "DB_SERVER=${{ secrets.DB_SERVER }}" >> .env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env
@@ -67,6 +70,9 @@ jobs:
 
       - name: Create web.config for Azure
         run: |
+          if [ -d "backend" ]; then
+            cd backend
+          fi
           echo '<?xml version="1.0" encoding="utf-8"?>' > web.config
           echo '<configuration>' >> web.config
           echo '  <system.webServer>' >> web.config
@@ -116,4 +122,3 @@ jobs:
           app-name: ${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_BACKEND_PUBLISH_PROFILE }}
           package: ${{ github.workspace }}/backend
-          startup-command: 'npm start'
