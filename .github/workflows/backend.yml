@@ -10,9 +10,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
 
     steps:
       - uses: actions/checkout@v3
@@ -38,8 +35,7 @@ jobs:
           curl -X POST "https://${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}.scm.azurewebsites.net/api/command" \
           -u "${{ secrets.AZURE_WEBAPP_BACKEND_PUBLISH_PROFILE_SOLUSERPWD }}" \
           -H "Content-Type: application/json" \
-          --data '{"command": "rm -rf /site/wwwroot/*"}' || echo "Clean failed, continuing..."
-        continue-on-error: true
+          --data '{"command": "rm -rf /site/wwwroot/*"}'
           
       - name: Inject .env from GitHub secrets
         run: |
@@ -73,35 +69,9 @@ jobs:
         run: npm run lint || echo "Lint failed"
         continue-on-error: true
 
-      - name: Create web.config for Azure
-        run: |
-          echo '<?xml version="1.0" encoding="utf-8"?>' > web.config
-          echo '<configuration>' >> web.config
-          echo '  <system.webServer>' >> web.config
-          echo '    <handlers>' >> web.config
-          echo '      <add name="iisnode" path="server.js" verb="*" modules="iisnode" />' >> web.config
-          echo '    </handlers>' >> web.config
-          echo '    <rewrite>' >> web.config
-          echo '      <rules>' >> web.config
-          echo '        <rule name="NodeInspector" patternSyntax="ECMAScript" stopProcessing="true">' >> web.config
-          echo '          <match url="^server.js\/debug[\/]?" />' >> web.config
-          echo '        </rule>' >> web.config
-          echo '        <rule name="DynamicContent">' >> web.config
-          echo '          <conditions>' >> web.config
-          echo '            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True" />' >> web.config
-          echo '          </conditions>' >> web.config
-          echo '          <action type="Rewrite" url="server.js" />' >> web.config
-          echo '        </rule>' >> web.config
-          echo '      </rules>' >> web.config
-          echo '    </rewrite>' >> web.config
-          echo '    <iisnode node_env="production" />' >> web.config
-          echo '  </system.webServer>' >> web.config
-          echo '</configuration>' >> web.config
-
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_BACKEND_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_BACKEND_PUBLISH_PROFILE }}
-          package: ./backend
-          startup-command: 'npm start'
+          package: .
